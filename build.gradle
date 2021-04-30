@@ -54,7 +54,6 @@ allprojects {
     arProperties.load(project.rootProject.file("mode/libraries/ar/library.properties").newDataInputStream())
     ext.arLibVersion = arProperties.getProperty("prettyVersion")
 
-
     def fn = project.rootProject.file("local.properties")
     if (!fn.exists()) {
         if (System.env["ANDROID_SDK"] != null) {
@@ -73,7 +72,6 @@ allprojects {
         }
     }
 
-
     Properties localProperties = new Properties()
     localProperties.load(project.rootProject.file("local.properties").newDataInputStream())
     def sdkDir = localProperties.getProperty("sdk.dir")
@@ -88,6 +86,17 @@ allprojects {
         maven { url 'https://repo.gradle.org/gradle/libs-releases' }
         flatDir dirs: androidPlatformPath
         flatDir dirs: "${rootDir}/core/build/libs"
+    }
+
+    if (JavaVersion.current().isJava8Compatible()) {
+        // Disable doclint to allow for Processing reference comments in code
+        // https://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html
+        // https://stackoverflow.com/a/59892052
+        tasks.withType(Javadoc) {
+            failOnError false
+            options.tags = [ "webref", "nowebref", "generate", "instanceName", "see_external", "brief", "usage" ]
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
     }
 
     compileJava {

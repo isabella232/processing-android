@@ -4,6 +4,9 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 plugins {
     id 'aar'
+
+    id 'maven-publish'
+    id 'signing'    
 }
 
 dependencies {
@@ -29,14 +32,13 @@ task sourceJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
-// Does not work because of Processing-specific tags in source code, such as @webref
-task javadocJar(type: Jar, dependsOn: javadoc) {
+task javadocJar(type: Jar, dependsOn: javadoc) {    
     classifier = "javadoc"
     from javadoc.destinationDir
 }
 
 artifacts {
-//     archives javadocJar
+    archives javadocJar
     archives sourceJar
 }
 
@@ -62,12 +64,14 @@ build.doLast {
     Files.copy(file("${buildDir}/libs/core.jar").toPath(),
             file("${coreZipPath}").toPath(), REPLACE_EXISTING)
     // Renaming artifacts for maven publishing
-    Files.move(file("${buildDir}/libs/core.jar").toPath(),
-               file("$buildDir/libs/processing-core-${modeVersion}.jar").toPath(), REPLACE_EXISTING);
-    Files.move(file("${buildDir}/libs/core-sources.jar").toPath(),
-               file("$buildDir/libs/processing-core-${modeVersion}-sources.jar").toPath(), REPLACE_EXISTING);
-    Files.move(file("${buildDir}/libs/core.jar.MD5").toPath(),
-               file("$buildDir/libs/processing-core-${modeVersion}.jar.md5").toPath(), REPLACE_EXISTING);
+    // Files.copy(file("${buildDir}/libs/core.jar").toPath(),
+    //            file("$buildDir/libs/processing-core-${modeVersion}.jar").toPath(), REPLACE_EXISTING);
+    // Files.copy(file("${buildDir}/libs/core-sources.jar").toPath(),
+    //            file("$buildDir/libs/processing-core-${modeVersion}-sources.jar").toPath(), REPLACE_EXISTING);
+    // Files.copy(file("${buildDir}/libs/core-javadoc.jar").toPath(),
+    //            file("$buildDir/libs/processing-core-${modeVersion}-javadoc.jar").toPath(), REPLACE_EXISTING);
+    // Files.copy(file("${buildDir}/libs/core.jar.MD5").toPath(),
+    //            file("$buildDir/libs/processing-core-${modeVersion}.jar.md5").toPath(), REPLACE_EXISTING);
 }
 
 ext {

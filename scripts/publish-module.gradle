@@ -1,13 +1,15 @@
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
-afterEvaluate {
+
+
     publishing {
+        print("========> ${libName}")
         publications {
             release(MavenPublication) {
-                artifact(libJar)
-                artifact(libSrc)
-                artifact(libMd5)
+                from components.java
+                artifact sourceJar
+                artifact javadocJar
                 pom {
                     groupId = "org.p5android"
                     artifactId = "${libName}"
@@ -44,7 +46,54 @@ afterEvaluate {
             }
         }
     }
-}
+
+
+
+
+// uploadArchives {
+  
+//   repositories {
+//     mavenDeployer {
+//       beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+//       repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//         authentication(userName: ossrhUsername, password: ossrhPassword)
+//       }
+
+//       snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+//         authentication(userName: ossrhUsername, password: ossrhPassword)
+//       }
+
+//       pom.project {
+
+//                     groupId = "org.p5android"
+//                     artifactId = "${libName}"
+//                     version = "${libVersion}"
+//                     packaging = "jar"
+//                     licenses {
+//                         license {
+//                             name = "GNU Lesser General Public License, version 2.1"
+//                             url = "https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt"
+//                             distribution = "repo"
+//                         }
+//                     }                    
+//                     scm {
+//                         connection = 'scm:git:github.com/processing/processing-android.git'
+//                         developerConnection = 'scm:git:ssh://github.com/processing/processing-android.git'
+//                         url = 'https://github.com/processing/processing-android/tree/master'
+//                     }
+//                     developers {
+//                         developer {
+//                             id 'codeanticode'
+//                             name 'Andres Colubri'
+//                             email 'android@processing.org'
+//                         }
+//                     }
+
+//       }
+//     }
+//   }
+// }
 
 ext["signing.keyId"] = rootProject.ext["signing.keyId"]
 ext["signing.password"] = rootProject.ext["signing.password"]
@@ -53,3 +102,7 @@ ext["signing.secretKeyRingFile"] = rootProject.ext["signing.secretKeyRingFile"]
 signing {
     sign publishing.publications
 }
+
+// signing {
+//     sign configurations.archives
+// }

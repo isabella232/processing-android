@@ -11,11 +11,6 @@ dependencies {
     implementationAar "com.google.ar:core:${garVersion}"
 }
 
-task sourceJar(type: Jar) {
-    from sourceSets.main.allJava
-    archiveClassifier = "sources"
-}
-
 sourceSets {
     main {
         java {
@@ -27,14 +22,19 @@ sourceSets {
     }
 }
 
-// Does not work because of Processing-specific tags in source code, such as @webref
+task sourceJar(type: Jar, dependsOn: classes) {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    classifier = "sources"
+    from sourceSets.main.allSource
+}
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = "javadoc"
     from javadoc.destinationDir
 }
 
 artifacts {
-//     archives javadocJar
+    archives javadocJar
     archives sourceJar
 }
 
@@ -64,12 +64,14 @@ build.doLast {
     Files.copy(file("$buildDir/libs/ar.jar").toPath(),
                arJar.toPath(), REPLACE_EXISTING);
     // Renaming artifacts for maven publishing
-    Files.move(file("$buildDir/libs/ar.jar").toPath(),
-               file("$buildDir/libs/processing-ar-${arLibVersion}.jar").toPath(), REPLACE_EXISTING);
-    Files.move(file("$buildDir/libs/ar-sources.jar").toPath(),
-               file("$buildDir/libs/processing-ar-${arLibVersion}-sources.jar").toPath(), REPLACE_EXISTING);
-    Files.move(file("$buildDir/libs/ar.jar.MD5").toPath(),
-               file("$buildDir/libs/processing-ar-${arLibVersion}.jar.md5").toPath(), REPLACE_EXISTING);
+    // Files.copy(file("$buildDir/libs/ar.jar").toPath(),
+    //            file("$buildDir/libs/processing-ar-${arLibVersion}.jar").toPath(), REPLACE_EXISTING);
+    // Files.copy(file("$buildDir/libs/ar-sources.jar").toPath(),
+    //            file("$buildDir/libs/processing-ar-${arLibVersion}-sources.jar").toPath(), REPLACE_EXISTING);
+    // Files.copy(file("$buildDir/libs/ar-javadoc.jar").toPath(),
+    //            file("$buildDir/libs/processing-ar-${arLibVersion}-javadoc.jar").toPath(), REPLACE_EXISTING);               
+    // Files.copy(file("$buildDir/libs/ar.jar.MD5").toPath(),
+    //            file("$buildDir/libs/processing-ar-${arLibVersion}.jar.md5").toPath(), REPLACE_EXISTING);
 }
 
 ext {

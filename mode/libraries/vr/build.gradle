@@ -9,12 +9,7 @@ dependencies {
     compileOnly name: "android"
     compileOnly "org.p5android:processing-core:${modeVersion}"
     implementationAar "com.google.vr:sdk-audio:${gvrVersion}"
-    implementationAar "com.google.vr:sdk-base:${gvrVersion}" 
-}
-
-task sourceJar(type: Jar, dependsOn: classes) {
-    classifier = "sources"
-    from sourceSets.main.allSource
+    implementationAar "com.google.vr:sdk-base:${gvrVersion}"
 }
 
 sourceSets {
@@ -22,17 +17,25 @@ sourceSets {
         java {
             srcDirs = ["src/"]
         }
+        resources {
+            srcDirs = ["src/"]
+        }        
     }
 }
 
-// Does not work because of Processing-specific tags in source code, such as @webref
+task sourceJar(type: Jar, dependsOn: classes) {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    classifier = "sources"
+    from sourceSets.main.allSource
+}
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = "javadoc"
     from javadoc.destinationDir
 }
 
 artifacts {
-//     archives javadocJar
+    archives javadocJar
     archives sourceJar
 }
 
@@ -64,12 +67,14 @@ build.doLast {
     Files.copy(file("$buildDir/libs/vr.jar").toPath(),
                vrJar.toPath(), REPLACE_EXISTING);
     // Renaming artifacts for maven publishing
-    Files.move(file("$buildDir/libs/vr.jar").toPath(),
-               file("$buildDir/libs/processing-vr-${vrLibVersion}.jar").toPath(), REPLACE_EXISTING);
-    Files.move(file("$buildDir/libs/vr-sources.jar").toPath(),
-               file("$buildDir/libs/processing-vr-${vrLibVersion}-sources.jar").toPath(), REPLACE_EXISTING);
-    Files.move(file("$buildDir/libs/vr.jar.MD5").toPath(),
-               file("$buildDir/libs/processing-vr-${vrLibVersion}.jar.md5").toPath(), REPLACE_EXISTING);
+    // Files.copy(file("$buildDir/libs/vr.jar").toPath(),
+    //            file("$buildDir/libs/processing-vr-${vrLibVersion}.jar").toPath(), REPLACE_EXISTING);
+    // Files.copy(file("$buildDir/libs/vr-sources.jar").toPath(),
+    //            file("$buildDir/libs/processing-vr-${vrLibVersion}-sources.jar").toPath(), REPLACE_EXISTING);
+    // Files.copy(file("$buildDir/libs/vr-javadoc.jar").toPath(),
+    //            file("$buildDir/libs/processing-vr-${vrLibVersion}-javadoc.jar").toPath(), REPLACE_EXISTING);
+    // Files.copy(file("$buildDir/libs/vr.jar.MD5").toPath(),
+    //            file("$buildDir/libs/processing-vr-${vrLibVersion}.jar.md5").toPath(), REPLACE_EXISTING);
 }
 
 ext {
